@@ -1,0 +1,19 @@
+[{
+    "id": "voltage",
+    "converter-model": "none"
+}, {
+    "id": "rpm",
+    "converter-model": "none"
+}, {
+    "id": "fuel-level",
+    "converter-model": "polynomial-model-converter",
+    "converter-data": "fuel-level/fuel-level-american-sender"
+}, {
+    "id": "oil-pressure",
+    "converter-model": "polynomial-model-converter",
+    "converter-data": "oil-pressure/oil-pressure-american-sender-5-bar"
+}, {
+    "id": "water-temperature",
+    "converter-model": "polynomial-model-converter",
+    "converter-data": "water-temperature/water-temperature-american-sender-40c-120c"
+}]

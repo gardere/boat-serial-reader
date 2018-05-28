@@ -1,13 +1,10 @@
-const SerialPort = require('serialport');
-const configuration = require('./configuration.json');
-const portName = configuration.SERIAL_PORT_NAME;
-const portConfiguration = configuration.SERIAL_PORT_CONFIGURATION;
-const webServerPort = configuration.WEB_SERVER_PORT;
-
 const readingsConverter = require('./readings-converter');
 const readingsFilter = require('./readings-filter');
 
-const sensorReadingsInputsConfiguration = require('./sensor-readings-inputs-configuration.json');
+const configuration = require('./configuration/configuration.json');
+const sensorReadingsInputsConfiguration = require('./configuration/sensor-readings-inputs-configuration.json');
+const webServerPort = configuration.WEB_SERVER_PORT;
+
 const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.id);
 
 
@@ -76,31 +73,6 @@ const parseSerialInput = (input) => {
     }
 }
 
-const onSerialData = (data) => {
-    rxBuffer = Buffer.concat([rxBuffer, data]);
-    const crLocation = rxBuffer.toString().indexOf('\n');
-    if (crLocation !== -1) {
-        parseSerialInput(rxBuffer.toString().substring(0, crLocation).trim())
-        rxBuffer = new Buffer(rxBuffer.toString().substring(crLocation + 1));
-    }
-};
-
-const initializeSerialPort = () => {
-    console.log('initializing serial port');
-    sp = new SerialPort(portName, portConfiguration, error => {
-        if (error) {
-            console.error('error initializing serial port', error);
-            setTimeout(() => initializeSerialPort(), 1000);
-        }
-     });
-
-     sp.on('open', () => {
-        console.log('serial port initialized');
-        sp.on('data', onSerialData);
-    });
-}
-
-
 const init = () => {
     require('./web-server').initializeWebServer(webServerPort, () => {
         const sensorsConfigurationDictionary = sensorReadingsInputsConfiguration.reduce((dictionary, element) => {
@@ -112,7 +84,7 @@ const init = () => {
         return filteredValue;
     });
     
-    initializeSerialPort();
+    require('./serial').initializeSerialPort(configuration);
 };
 
 init();

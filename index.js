@@ -84,7 +84,7 @@ const init = () => {
         return filteredValue;
     });
     
-    require('./serial').initializeSerialPort(configuration);
+    require('./serial').initializeSerialPort(configuration, parseSerialInput);
 };
 
 init();

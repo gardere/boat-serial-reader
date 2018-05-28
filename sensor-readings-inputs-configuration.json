@@ -1,6 +1,12 @@
 [{
     "id": "voltage",
-    "converter-model": "none"
+    "converter-model": "none",
+    "filters": [{
+        "type": "moving-average",
+        "params": {
+            "number-of-values": 5
+        }
+    }]
 }, {
     "id": "fuel-level",
     "converter-model": "polynomial-model-converter",

@@ -1,11 +1,10 @@
 const SerialPort = require('serialport');
 const configuration = require('./configuration.json');
-const portName = configuration.SERIAL_PORT;
+const portName = configuration.SERIAL_PORT_NAME;
+const portConfiguration = configuration.SERIAL_PORT_CONFIGURATION;
+const webServerPort = configuration.WEB_SERVER_PORT;
 
-const converters = {
-    "linear-model-converter": require('./values-converter/linear-model-converter'),
-    "polynomial-model-converter": require('./values-converter/polynomial-model-converter')
-}
+const readingsConverter = require('./readings-converter');
 
 const sensorReadingsInputsConfiguration = require('./sensor-readings-inputs-configuration.json');
 const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.id);
@@ -58,21 +57,19 @@ const parseGpsInput = str => {
     
 };
 
+const serialInputHandlers = {
+    "RDG": parseReadings,
+    "GPS": parseGpsInput,
+    "RAW": (payload) => rawReadings['raw'] = payload,
+    "RPM": (payload) => rawReadings['rpm'] = parseInt(payload, 10),
+    "DEFAULT": (payload, input) => console.error('Unknown serial input type: ', input)
+};
+
 const parseSerialInput = (input) => {
     try {
         const payload = input.substring(4).trim();
         const inputType = input.substring(0, 3);
-        if (inputType === 'RDG') {
-            parseReadings(payload);
-        } else if (inputType === 'GPS') {
-            parseGpsInput(payload);
-        } else if (inputType === 'RAW') {
-            rawReadings['raw'] = payload;
-        } else if (inputType === 'RPM') {
-            rawReadings['rpm'] = parseInt(payload, 10);
-        } else {
-            console.error('Unknown serial input type: ', input);
-        }
+        serialInputHandlers[inputType] || serialInputHandlers['DEFAULT'](payload, input);
     } catch (error) {
         console.error('error parsing serial input', error);
     }
@@ -89,13 +86,7 @@ const onSerialData = (data) => {
 
 const initializeSerialPort = () => {
     console.log('initializing serial port');
-    sp = new SerialPort(portName, {
-        baudRate: 9600,
-        dataBits: 8,
-        parity: 'none',
-        stopBits: 1,
-        flowControl: false
-     }, error => {
+    sp = new SerialPort(portName, portConfiguration, error => {
         if (error) {
             console.error('error initializing serial port', error);
             setTimeout(() => initializeSerialPort(), 1000);
@@ -109,49 +100,11 @@ const initializeSerialPort = () => {
 }
 
 
-const cachedConverters = {};
-const getConverter = (model, data) => {
-    const converterKey = `${model}_${data}`;
-    
-    if (!cachedConverters[converterKey]) {
-        const modelData = require(`./values-converter/models-data/${data}.json`);
-        const converter = converters[model](modelData);
-        cachedConverters[converterKey] = converter;
-    }
-
-    return cachedConverters[converterKey];
+const init = () => {
+    require('./web-server').initializeWebServer(webServerPort, () => readingsConverter.convertReadings(sensorReadingsInputsConfiguration, rawReadings));
+    initializeSerialPort();
 };
 
-const convertReadings = readingsToConvert => {
-    const readings = JSON.parse(JSON.stringify(readingsToConvert));
-
-    Object.keys(readings).forEach(readingKey => {
-        const sensorInputConfiguration = sensorReadingsInputsConfiguration.find(cfg => cfg.id === readingKey);
-        const converterModel = sensorInputConfiguration !== undefined ? sensorInputConfiguration["converter-model"] : undefined;
-        if (converterModel && converterModel !== 'none') {
-            try {
-                const converterData = sensorInputConfiguration["converter-data"];
-                readings[readingKey] = getConverter(converterModel, converterData)(readings[readingKey]);
-            } catch (error) {
-                console.error(`could not convert ${readingKey} reading (value ${readings[readingKey] })`, error);
-            }
-        }
-    });
-
-    return readings;
-};
+init();
 
 
-const initializeWebServer = () => {
-    console.log('initializing web server');
-    const http = require('http');
-
-    http.createServer((req, res) => { 
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        res.end(JSON.stringify(convertReadings(rawReadings)));
-    }).listen(8081); 
-};
-
-
-initializeWebServer();
-initializeSerialPort();

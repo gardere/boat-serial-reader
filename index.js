@@ -1,5 +1,6 @@
 const SerialPort = require('serialport');
-const portName = '/dev/ttyACM0';
+const configuration = require('./configuration.json');
+const portName = configuration.SERIAL_PORT;
 
 const converters = {
     "linear-model-converter": require('./values-converter/linear-model-converter'),
@@ -44,6 +45,17 @@ const parseGpsInput = str => {
     position['course'] = parseFloat(tokens[3]);
     position['numberOfSatellites'] = parseInt(tokens[4], 10);
     position['hdop'] = parseFloat(tokens[5]);
+
+    position['datetime'] = 0;
+    try {
+        const datetimeTokens = tokens[6].split(',').map(a => parseInt(a, 10));
+        if (datetimeTokens[0] !== 2000) {
+            position['datetime'] = Date.UTC(...datetimeTokens);
+        }
+    } catch (err) {
+        //invalid value, GPS datetime could not be obtained for now
+    }
+    
 };
 
 const parseSerialInput = (input) => {
@@ -54,6 +66,10 @@ const parseSerialInput = (input) => {
             parseReadings(payload);
         } else if (inputType === 'GPS') {
             parseGpsInput(payload);
+        } else if (inputType === 'RAW') {
+            rawReadings['raw'] = payload;
+        } else if (inputType === 'RPM') {
+            rawReadings['rpm'] = parseInt(payload, 10);
         } else {
             console.error('Unknown serial input type: ', input);
         }

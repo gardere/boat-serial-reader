@@ -2,9 +2,6 @@
     "id": "voltage",
     "converter-model": "none"
 }, {
-    "id": "rpm",
-    "converter-model": "none"
-}, {
     "id": "fuel-level",
     "converter-model": "polynomial-model-converter",
     "converter-data": "fuel-level/fuel-level-american-sender"

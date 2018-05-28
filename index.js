@@ -67,7 +67,7 @@ const parseSerialInput = (input) => {
     try {
         const payload = input.substring(4).trim();
         const inputType = input.substring(0, 3);
-        serialInputHandlers[inputType] || serialInputHandlers['DEFAULT'](payload, input);
+        (serialInputHandlers[inputType] || serialInputHandlers['DEFAULT'])(payload, input);
     } catch (error) {
         console.error('error parsing serial input', error);
     }
@@ -84,7 +84,7 @@ const init = () => {
         return filteredValue;
     });
     
-    require('./serial').initializeSerialPort(configuration, parseSerialInput);
+    require('./mocks/mock-serial-port').initializeSerialPort(configuration, parseSerialInput);
 };
 
 init();

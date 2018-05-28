@@ -5,6 +5,7 @@ const portConfiguration = configuration.SERIAL_PORT_CONFIGURATION;
 const webServerPort = configuration.WEB_SERVER_PORT;
 
 const readingsConverter = require('./readings-converter');
+const readingsFilter = require('./readings-filter');
 
 const sensorReadingsInputsConfiguration = require('./sensor-readings-inputs-configuration.json');
 const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.id);
@@ -101,10 +102,17 @@ const initializeSerialPort = () => {
 
 
 const init = () => {
-    require('./web-server').initializeWebServer(webServerPort, () => readingsConverter.convertReadings(sensorReadingsInputsConfiguration, rawReadings));
+    require('./web-server').initializeWebServer(webServerPort, () => {
+        const sensorsConfigurationDictionary = sensorReadingsInputsConfiguration.reduce((dictionary, element) => {
+            dictionary[element.id] = element;
+            return dictionary;
+        }, {});
+        const convertedValue = readingsConverter.convertReadings(sensorsConfigurationDictionary, rawReadings);
+        const filteredValue = readingsFilter.filterValue(sensorsConfigurationDictionary, convertedValue);
+        return filteredValue;
+    });
+    
     initializeSerialPort();
 };
 
 init();
-
-

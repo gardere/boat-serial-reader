@@ -1,7 +1,7 @@
 const converters = {
     "linear-model-converter": require('./values-converter/linear-model-converter'),
     "polynomial-model-converter": require('./values-converter/polynomial-model-converter')
-}
+};
 
 const cachedConverters = {};
 const getConverter = (model, data) => {
@@ -20,7 +20,7 @@ const convertReadings = (sensorReadingsInputsConfiguration, readingsToConvert) =
     const readings = JSON.parse(JSON.stringify(readingsToConvert));
 
     Object.keys(readings).forEach(readingKey => {
-        const sensorInputConfiguration = sensorReadingsInputsConfiguration.find(cfg => cfg.id === readingKey);
+        const sensorInputConfiguration = sensorReadingsInputsConfiguration[readingKey];
         const converterModel = sensorInputConfiguration !== undefined ? sensorInputConfiguration["converter-model"] : undefined;
         if (converterModel && converterModel !== 'none') {
             try {
@@ -37,4 +37,4 @@ const convertReadings = (sensorReadingsInputsConfiguration, readingsToConvert) =
 
 module.exports = {
     convertReadings
-}
+};

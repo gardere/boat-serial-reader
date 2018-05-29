@@ -21,6 +21,7 @@ const parseReadings = str => {
         sensorReadingPositions.forEach((name, idx) => {
             rawReadings[name] = parseFloat(tokens[idx]);
         });
+        processReadings();
     } catch (error) {
         console.error('Error parsing readings\n', error);
     }
@@ -87,7 +88,6 @@ const processReadings = () => {
 const init = () => {
     require('./web-server').initializeWebServer(webServerPort, () => processedReadings);
     require('./mocks/mock-serial-port').initializeSerialPort(configuration, parseSerialInput);
-    setInterval(() => processReadings(), 250);
 };
 
 init();

@@ -4,19 +4,37 @@
     "filters": [{
         "type": "moving-average",
         "params": {
-            "number-of-values": 5
+            "number-of-values": 10
         }
     }]
 }, {
     "id": "fuel-level",
     "converter-model": "polynomial-model-converter",
-    "converter-data": "fuel-level/fuel-level-american-sender"
+    "converter-data": "fuel-level/fuel-level-american-sender",
+    "filters": [{
+        "type": "moving-average",
+        "params": {
+            "number-of-values": 20
+        }
+    }]
 }, {
     "id": "oil-pressure",
     "converter-model": "polynomial-model-converter",
-    "converter-data": "oil-pressure/oil-pressure-american-sender-5-bar"
+    "converter-data": "oil-pressure/oil-pressure-american-sender-5-bar",
+    "filters": [{
+        "type": "moving-average",
+        "params": {
+            "number-of-values": 20
+        }
+    }]
 }, {
     "id": "water-temperature",
     "converter-model": "polynomial-model-converter",
-    "converter-data": "water-temperature/water-temperature-american-sender-40c-120c"
+    "converter-data": "water-temperature/water-temperature-american-sender-40c-120c",
+    "filters": [{
+        "type": "moving-average",
+        "params": {
+            "number-of-values": 20
+        }
+    }]
 }]

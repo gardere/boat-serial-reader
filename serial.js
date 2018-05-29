@@ -22,7 +22,7 @@ const initializeSerialPort = ({ SERIAL_PORT_NAME, SERIAL_PORT_CONFIGURATION }, s
         console.log('serial port initialized');
         sp.on('data', data => onSerialData(data, serialPortSentenceHandler));
     });
-}
+};
 
 module.exports = {
     initializeSerialPort

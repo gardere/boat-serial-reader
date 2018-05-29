@@ -9,7 +9,7 @@ const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.
 
 
 const rawReadings = {};
-
+let processedReadings = {};
 let sp;
 
 let rxBuffer = new Buffer('');
@@ -46,6 +46,7 @@ const parseGpsInput = str => {
     position['datetime'] = 0;
     try {
         const datetimeTokens = tokens[6].split(',').map(a => parseInt(a, 10));
+        --datetimeTokens[1]; //for javascript dates month is 0-base index!
         if (datetimeTokens[0] !== 2000) {
             position['datetime'] = Date.UTC(...datetimeTokens);
         }
@@ -71,20 +72,22 @@ const parseSerialInput = (input) => {
     } catch (error) {
         console.error('error parsing serial input', error);
     }
+};
+
+const processReadings = () => {
+    const sensorsConfigurationDictionary = sensorReadingsInputsConfiguration.reduce((dictionary, element) => {
+        dictionary[element.id] = element;
+        return dictionary;
+    }, {});
+    const convertedValue = readingsConverter.convertReadings(sensorsConfigurationDictionary, rawReadings);
+    const filteredValue = readingsFilter.filterValue(sensorsConfigurationDictionary, convertedValue);
+    processedReadings = filteredValue;
 }
 
 const init = () => {
-    require('./web-server').initializeWebServer(webServerPort, () => {
-        const sensorsConfigurationDictionary = sensorReadingsInputsConfiguration.reduce((dictionary, element) => {
-            dictionary[element.id] = element;
-            return dictionary;
-        }, {});
-        const convertedValue = readingsConverter.convertReadings(sensorsConfigurationDictionary, rawReadings);
-        const filteredValue = readingsFilter.filterValue(sensorsConfigurationDictionary, convertedValue);
-        return filteredValue;
-    });
-    
+    require('./web-server').initializeWebServer(webServerPort, () => processedReadings);
     require('./mocks/mock-serial-port').initializeSerialPort(configuration, parseSerialInput);
+    setInterval(() => processReadings(), 250);
 };
 
 init();

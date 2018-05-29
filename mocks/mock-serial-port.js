@@ -1,6 +1,6 @@
 const getGpsDate = () => {
     const date = new Date();
-    return `${date.getUTCFullYear()},${date.getUTCMonth() + 1},${date.getUTCDate()},${date.getUTCHours()},${date.getUTCMinutes()},${date.getUTCSeconds() }`;
+    return `${date.getUTCFullYear()},${date.getUTCMonth() + 1},${date.getUTCDate()},${date.getUTCHours()},${date.getUTCMinutes()},${date.getUTCSeconds()},${parseInt(date.getUTCMilliseconds() / 10, 10)}0`;
 }
 
 const initializeSerialPort = ({ SERIAL_PORT_NAME, SERIAL_PORT_CONFIGURATION }, serialPortSentenceHandler) => {

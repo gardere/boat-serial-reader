@@ -3,7 +3,6 @@ const readingsFilter = require('./readings-filter');
 
 const configuration = require('./configuration/configuration.json');
 const sensorReadingsInputsConfiguration = require('./configuration/sensor-readings-inputs-configuration.json');
-const webServerPort = configuration.WEB_SERVER_PORT;
 
 const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.id);
 
@@ -22,6 +21,7 @@ const parseReadings = str => {
             rawReadings[name] = parseFloat(tokens[idx]);
         });
         processReadings();
+        processedReadings.rdg = str;
     } catch (error) {
         console.error('Error parsing readings\n', error);
     }
@@ -58,7 +58,10 @@ const parseGpsInput = str => {
 };
 
 const serialInputHandlers = {
-    "RDG": parseReadings,
+    "RDG": (payload) => {
+        parseReadings(payload);
+        
+    },
     "GPS": parseGpsInput,
     "RAW": (payload) => rawReadings['raw'] = payload,
     "RPM": (payload) => rawReadings['rpm'] = parseInt(payload, 10),
@@ -85,9 +88,9 @@ const processReadings = () => {
     processedReadings = filteredValue;
 }
 
-const init = () => {
-    require('./web-server').initializeWebServer(webServerPort, () => processedReadings);
-    require('./mocks/mock-serial-port').initializeSerialPort(configuration, parseSerialInput);
+const init = configuration => {
+    require('./web-server').initializeWebServer(configuration.WEB_SERVER_PORT, () => processedReadings);
+    require(configuration.SERIAL_PORT_TYPE).initializeSerialPort(configuration, parseSerialInput);
 };
 
-init();
+init(configuration);

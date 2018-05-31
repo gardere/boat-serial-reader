@@ -1,4 +1,5 @@
 {
+    "SERIAL_PORT_TYPE": "./serial",
     "SERIAL_PORT_NAME": "/dev/ttyACM0",
     "SERIAL_PORT_CONFIGURATION": {
         "baudRate": 9600,

@@ -64,7 +64,11 @@ const serialInputHandlers = {
     },
     "GPS": parseGpsInput,
     "RAW": (payload) => rawReadings['raw'] = payload,
-    "RPM": (payload) => rawReadings['rpm'] = parseInt(payload, 10),
+    "RPM": (payload) => {
+        const rpmValue = parseInt(payload, 10);
+        rawReadings['rpm'] = rpmValue;
+        processedReadings['rpm'] = rpmValue;
+    },
     "DEFAULT": (payload, input) => console.error('Unknown serial input type: ', input)
 };
 

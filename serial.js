@@ -1,5 +1,9 @@
 const SerialPort = require('serialport');
 
+let rxBuffer = new Buffer('');
+let sp;
+
+
 const onSerialData = (data, serialPortSentenceHandler) => {
     rxBuffer = Buffer.concat([rxBuffer, data]);
     const crLocation = rxBuffer.toString().indexOf('\n');

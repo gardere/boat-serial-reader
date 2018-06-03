@@ -9,9 +9,6 @@ const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.
 
 const rawReadings = {};
 let processedReadings = {};
-let sp;
-
-let rxBuffer = new Buffer('');
 
 const parseReadings = str => {
     const tokens = str.split(' ');
@@ -74,6 +71,7 @@ const serialInputHandlers = {
 
 const parseSerialInput = (input) => {
     try {
+        console.log(`input: ${input}`)
         const payload = input.substring(4).trim();
         const inputType = input.substring(0, 3);
         (serialInputHandlers[inputType] || serialInputHandlers['DEFAULT'])(payload, input);

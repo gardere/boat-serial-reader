@@ -3,10 +3,6 @@ const util = require('util');
 
 const LOG_FILES_PREFIX = 'data_';
 
-// const getRDG = logData => {
-//     return logData.RDG ? `RDG ${logData.RDG}`: undefined;
-// };
-
 const formatGpsDateTime = datetime => {
     const date = new Date(parseInt(datetime, 10));
     return `${date.getUTCFullYear()},${date.getUTCMonth() + 1},${date.getUTCDate()},${date.getUTCHours()},${date.getUTCMinutes()},${date.getUTCSeconds()},${parseInt(date.getUTCMilliseconds() / 10, 10)}0`;

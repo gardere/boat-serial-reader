@@ -7,7 +7,7 @@
         "parity": "none",
         "stopBits": 1,
         "flowControl": false,
-        "folder": "../logger/logger-data2/"
+        "folder": "../logger/logger-data/"
     },
     "WEB_SERVER_PORT": 8081
 }

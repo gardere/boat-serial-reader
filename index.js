@@ -4,62 +4,24 @@ const readingsFilter = require('./readings-filter');
 const configuration = require('./configuration/configuration.json');
 const inputsConfiguration = require('./configuration/inputs-configuration.json');
 
+const { parseGpsInput, parseReadings } = require('./parsers');
+
 const sensorReadingPositions = inputsConfiguration.sensorReadingPositions;
 
 
 const rawReadings = {};
 let processedReadings = {};
 
-const parseReadings = str => {
-    const tokens = str.split(' ');
-    
-    try {
-        sensorReadingPositions.forEach((name, idx) => {
-            rawReadings[name] = parseFloat(tokens[idx]);
-        });
-        processReadings();
-        processedReadings.rdg = str;
-    } catch (error) {
-        console.error('Error parsing readings\n', error);
-    }
-};
 
-const parseGpsInput = str => {
-    const tokens = str.split(' ')
-    .reduce((result, token) => {
-        if (token && token.trim().length > 0) {
-            result.push(token);
-        }
-        return result;
-    }, []);
 
-    const position = rawReadings['position'] = rawReadings['position'] || {};
-    position['longitude'] = parseFloat(tokens[0]);
-    position['latitude'] = parseFloat(tokens[1]);
-    position['speed'] = parseFloat(tokens[2]);
-    position['course'] = parseFloat(tokens[3]);
-    position['numberOfSatellites'] = parseInt(tokens[4], 10);
-    position['hdop'] = parseFloat(tokens[5]);
-
-    position['datetime'] = 0;
-    try {
-        const datetimeTokens = tokens[6].split(',').map(a => parseInt(a, 10));
-        --datetimeTokens[1]; //for javascript dates month is 0-base index!
-        if (datetimeTokens[0] !== 2000) {
-            position['datetime'] = Date.UTC(...datetimeTokens);
-        }
-    } catch (err) {
-        //invalid value, GPS datetime could not be obtained for now
-    }
-    
-};
 
 const serialInputHandlers = {
     "RDG": (payload) => {
-        parseReadings(payload);
-        
+        parseReadings(sensorReadingPositions, rawReadings, payload);
+        processReadings();
+        processedReadings.rdg = payload;
     },
-    "GPS": parseGpsInput,
+    "GPS": parseGpsInput.bind(null, rawReadings),
     "RAW": (payload) => rawReadings['raw'] = payload,
     "RPM": (payload) => {
         const rpmValue = parseInt(payload, 10);

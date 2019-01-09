@@ -3,7 +3,3 @@ const filters = {
 };
 
 module.exports = filters;
-
-const maFilter = filters["moving-average"]({
-    "number-of-values": 4
-});

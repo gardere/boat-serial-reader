@@ -9,11 +9,11 @@ const getFilter = (details, index, readingKey) => {
     return cachedFilter[filterKey];
 }
 
-const filterValue = (sensorReadingsInputsConfiguration, readingsToFilter) => {
+const filterValue = (filtersConfiguration, readingsToFilter) => {
     const readings = JSON.parse(JSON.stringify(readingsToFilter));
 
     Object.keys(readings).forEach(readingKey => {
-        const sensorInputConfiguration = sensorReadingsInputsConfiguration[readingKey];
+        const sensorInputConfiguration = filtersConfiguration[readingKey];
         const filters = sensorInputConfiguration !== undefined ? sensorInputConfiguration["filters"] : undefined;
         if (filters) {
             filters.forEach((filterDetails, filterIndex) => {

@@ -1,0 +1,59 @@
+{
+    "sensorReadingPositions": ["voltage","fuel-level", "oil-pressure", "water-temperature"],
+    "filters": {
+        "voltage": [{
+            "type": "moving-average",
+            "params": {
+                "number-of-values": 3
+            }
+        }], 
+        "fuel-level": [{
+            "type": "moving-average",
+            "params": {
+                "number-of-values": 10
+            }
+        }],
+        "oil-pressure": [{
+            "type": "moving-average",
+            "params": {
+                "number-of-values": 3
+            }
+        }],
+        "water-temperature": [{
+            "type": "moving-average",
+            "params": {
+                "number-of-values": 3
+            }
+        }]
+    },
+    "converters": {
+        "fuel-level": {
+            "converter-model": "linear-model-converter",
+            "converter-data": "fuel-level/fuel-level-american-sender"
+        },
+        "fuel-usage": {
+            "converter-model": "linear-model-converter",
+            "converter-data": "fuel-usage/mercruiser-3.0-alpha-1"
+        },
+        "oil-pressure": {
+            "converter-model": "linear-model-converter",
+            "converter-data": "oil-pressure/oil-pressure-american-sender-5-bar"
+        },
+        "water-temperature": {
+            "converter-model": "linear-model-converter",
+            "converter-data": "water-temperature/water-temperature-american-sender-40c-120c"
+        }
+    },
+    "accumulators": {
+        "fuel-consumption": {
+            "name": "fuel-consumption",
+            "base-value": "fuel-usage",
+            "accumulator": "fuel-consumption"
+        },
+        "distance": {
+            "name": "fuel-consumption",
+            "base-value": "postion",
+            "accumulator": "fuel-consumption"
+        }
+    }
+}

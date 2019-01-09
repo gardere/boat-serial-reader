@@ -2,9 +2,9 @@ const readingsConverter = require('./readings-converter');
 const readingsFilter = require('./readings-filter');
 
 const configuration = require('./configuration/configuration.json');
-const sensorReadingsInputsConfiguration = require('./configuration/sensor-readings-inputs-configuration.json');
+const inputsConfiguration = require('./configuration/inputs-configuration.json');
 
-const sensorReadingPositions = sensorReadingsInputsConfiguration.map(obj => obj.id);
+const sensorReadingPositions = inputsConfiguration.sensorReadingPositions;
 
 
 const rawReadings = {};
@@ -63,6 +63,7 @@ const serialInputHandlers = {
     "RAW": (payload) => rawReadings['raw'] = payload,
     "RPM": (payload) => {
         const rpmValue = parseInt(payload, 10);
+        rawReadings['fuel-usage'] = rpmValue; // Why?
         rawReadings['rpm'] = rpmValue;
         processedReadings['rpm'] = rpmValue;
     },
@@ -81,12 +82,8 @@ const parseSerialInput = (input) => {
 };
 
 const processReadings = () => {
-    const sensorsConfigurationDictionary = sensorReadingsInputsConfiguration.reduce((dictionary, element) => {
-        dictionary[element.id] = element;
-        return dictionary;
-    }, {});
-    const convertedValue = readingsConverter.convertReadings(sensorsConfigurationDictionary, rawReadings);
-    const filteredValue = readingsFilter.filterValue(sensorsConfigurationDictionary, convertedValue);
+    const convertedValue = readingsConverter.convertReadings(inputsConfiguration.converters, rawReadings);
+    const filteredValue = readingsFilter.filterValue(inputsConfiguration.filters, convertedValue);
     processedReadings = filteredValue;
 }
 

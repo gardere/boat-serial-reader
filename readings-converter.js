@@ -16,19 +16,25 @@ const getConverter = (model, data) => {
     return cachedConverters[converterKey];
 };
 
-const convertReadings = (sensorReadingsInputsConfiguration, readingsToConvert) => {
+const convertReadings = (convertersConfiguration, readingsToConvert) => {
     const readings = JSON.parse(JSON.stringify(readingsToConvert));
 
     Object.keys(readings).forEach(readingKey => {
-        const sensorInputConfiguration = sensorReadingsInputsConfiguration[readingKey];
-        const converterModel = sensorInputConfiguration !== undefined ? sensorInputConfiguration["converter-model"] : undefined;
-        if (converterModel && converterModel !== 'none') {
-            try {
-                const converterData = sensorInputConfiguration["converter-data"];
-                readings[readingKey] = getConverter(converterModel, converterData)(readings[readingKey]);
-            } catch (error) {
-                console.error(`could not convert ${readingKey} reading (value ${readings[readingKey] })`, error);
+        if (readings[readingKey]) {
+            const sensorInputConfiguration = convertersConfiguration[readingKey];
+            const converterModel = sensorInputConfiguration !== undefined ? sensorInputConfiguration["converter-model"] : undefined;
+            if (converterModel && converterModel !== 'none') {
+                try {
+                    const converterData = sensorInputConfiguration["converter-data"];
+                    const newValue = getConverter(converterModel, converterData)(readings[readingKey]);;
+                    console.log(`converting ${readingKey} : ${readings[readingKey]} => ${newValue}`);
+                    readings[readingKey] = newValue;
+                } catch (error) {
+                    console.error(`could not convert ${readingKey} reading (value ${readings[readingKey] })`, error);
+                }
             }
+        } else {
+            console.log(`no value for ${readingKey}`);
         }
     });
 

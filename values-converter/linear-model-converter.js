@@ -31,13 +31,14 @@ const converterFactory = values => {
         const lowEnd = sortedValues[0].source;
         const highEnd = sortedValues[sortedValues.length - 1].source;
         if ((value < lowEnd) || (value > highEnd)) {
-            throw new Error(`Value ${value} is out of "interpolable" range (${lowEnd} - ${highEnd})`);
+            console.info(`Value ${value} is out of "interpolable" range (${lowEnd} - ${highEnd})`);
+            value = (value < lowEnd) ? lowEnd : highEnd;
         }
 
         for (var i=0;i<sortedValues.length-1; ++i) {
             const lowBoundary = sortedValues[i];
             const highBoundary = sortedValues[i+1];
-            if (value > lowBoundary.source && value < highBoundary.source) {
+            if (value >= lowBoundary.source && value <= highBoundary.source) {
                 return lowBoundary.target + (highBoundary.target - lowBoundary.target) / (highBoundary.source - lowBoundary.source) * (value - lowBoundary.source);
             }
         }

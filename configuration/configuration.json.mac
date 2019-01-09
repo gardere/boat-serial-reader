@@ -1,5 +1,5 @@
 {
-    "SERIAL_PORT_TYPE": "serial",
+    "SERIAL_PORT_TYPE": "./serial",
     "SERIAL_PORT_NAME": "/dev/cu.usbmodem14111",
     "SERIAL_PORT_CONFIGURATION": {
         "baudRate": 9600,
